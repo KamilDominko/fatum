@@ -3,10 +3,10 @@ class Settings:
 
     def __init__(self):
         self.game_title = "Runner"
-        self.screen_width = 1280
-        self.screen_height = 720
+        self.screen_width = 800
+        self.screen_height = 400
         self.fps = 60
-        self.font_size = 100
+        self.font_size = 50
 
         self.theme_color = (94, 129, 162)
         self.font_color = (111, 196, 169)
@@ -15,6 +15,7 @@ class Settings:
         self.GREEN = (0, 150, 0)
 
         self.player_health = 50
+        self.player_speed = 10
         self.player_jump = -20
         self.hp_bar_width = 300
         self.hp_bar_height = 30

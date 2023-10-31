@@ -10,13 +10,14 @@ class Obstacle(pygame.sprite.Sprite):
     def __init__(self, game, type):
         super().__init__()
         self.game = game
+        self.type = type
         self.frames = []
 
         if type == 'storm':
             self._load_imgs(type)
             self.damage = game.settings.enemy_damage
             self.points = game.settings.enemy_points
-            y_pos = 190
+            y_pos = 0 + self.frames[0].get_height()
         elif type == "snail":
             self._load_imgs(type)
             self.damage = game.settings.enemy_damage
@@ -53,9 +54,9 @@ class Obstacle(pygame.sprite.Sprite):
     def update(self):
         self.animation_state()
         self.rect.x -= self.game.settings.enemy_speed
-        self.destroy()
+        self._destroy()
 
-    def destroy(self):
+    def _destroy(self):
         if self.rect.right <= 0:
             self.game.score += self.points
             self.kill()

@@ -17,7 +17,6 @@ class Player(pygame.sprite.Sprite):
         self.player_jump = useful.load_scale_image(
             "graphics/player/sprite_knight_jump.png",
             game.scale_x, game.scale_y, 1)
-
         self.image = self.player_walk[self.player_index]
         self.player_y = game.ground_y - self.image.get_height()
         self.rect = self.image.get_rect(
@@ -26,10 +25,17 @@ class Player(pygame.sprite.Sprite):
 
         self.jump_sound = pygame.mixer.Sound('audio/jump.mp3')
         self.jump_sound.set_volume(0.5)
+        self.speed = game.settings.player_speed
+        self.jump = game.settings.player_jump
         self.max_health = self.game.settings.player_health
         self.current_health = self.game.settings.player_health
         self.hp_bar_w = game.settings.hp_bar_width * game.scale_x
         self.hp_bar_h = game.settings.hp_bar_height * game.scale_y
+
+    def reset(self):
+        self.current_health = self.max_health
+        self.rect = self.image.get_rect(
+            midbottom=(80 * self.game.scale_x, self.player_y))
 
     def take_damage(self, damage):
         if self.current_health + damage <= self.max_health:
@@ -54,8 +60,12 @@ class Player(pygame.sprite.Sprite):
     def player_input(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_SPACE] and self.rect.bottom >= self.game.ground_y:
-            self.gravity = self.game.settings.player_jump * self.game.scale_x
+            self.gravity = self.jump * self.game.scale_x
             self.jump_sound.play()
+        if keys[pygame.K_d] and self.rect.right <= self.game.screen.get_width():
+            self.rect.x += self.speed
+        if keys[pygame.K_a] and self.rect.left >= 0:
+            self.rect.x -= self.speed
 
     def apply_gravity(self):
         self.gravity += 1

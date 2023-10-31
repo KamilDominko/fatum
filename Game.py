@@ -1,5 +1,6 @@
 import pygame
 from Settings import Settings
+from Statistics import Statistics
 from Player import Player
 from Obstacle import Obstacle
 import useful
@@ -15,6 +16,7 @@ class Game:
         # pygame.init()
         self.isRunning = True
         self.settings = Settings()
+        self.statistics = Statistics()
         self.screen_w = self.settings.screen_width
         self.screen_h = self.settings.screen_height
         self.font_size = self.settings.font_size
@@ -26,26 +28,27 @@ class Game:
         self.score = 0
 
         # Resources.
-        self.font = pygame.font.Font('font/Pixeltype.ttf', self.font_size)
-        self.title_font = pygame.font.Font('font/Pixeltype.ttf',
-                                           self.font_size * 2)
         self.bg_music = pygame.mixer.Sound('audio/Hoppin.mp3')
         self.bg_music.play(loops=-1)
         self.bg_img = pygame.image.load('graphics/morninghill.png').convert()
+
         self.scale_x, self.scale_y = useful.get_scale(self.screen, self.bg_img)
         self.bg_img = useful.scale_image(self.bg_img, self.scale_x,
                                          self.scale_y)
         self.ground_img = useful.load_scale_image("graphics/ground.png",
                                                   self.scale_x, self.scale_y)
-
         self.ground_y = self.screen.get_height() - self.ground_img.get_height()
 
-        self.player = Player(self)
+        self.font = pygame.font.Font('font/Pixeltype.ttf',
+                                     int(self.font_size * self.scale_x))
+        self.title_font = pygame.font.Font('font/Pixeltype.ttf',
+                                           int(self.font_size * 2 *
+                                               self.scale_x))
 
         # Groups
+        self.player = Player(self)
         self.players = pygame.sprite.GroupSingle()
         self.players.add(self.player)
-
         self.obstacles = pygame.sprite.Group()
 
         # Intro screen
@@ -99,6 +102,7 @@ class Game:
                                         self.settings.BLACK)
         distance_msg_rect = distance_msg.get_rect(
             midtop=(self.screen_w / 2, 0))
+        self.statistics.distance = distance
         self.screen.blit(distance_msg, distance_msg_rect)
 
     def _display_score(self):
@@ -113,9 +117,15 @@ class Game:
         for obstacle in self.obstacles:
             if obstacle.rect.colliderect(self.player.rect):
                 self.player.take_damage(obstacle.damage)
+                if obstacle.type == "banana":
+                    self.statistics.bananas += 1
                 obstacle.kill()
             if self.player.current_health <= 0:
+                self.statistics.score = self.score
                 self.gameRunning = False
+                print(f"SCORE:{self.statistics.score}")
+                print(f"DISTANCE:{self.statistics.distance}")
+                print(f"BANBANAS:{self.statistics.bananas}")
 
     def _update_screen(self):
         self.screen.blit(self.bg_img, (0, 0))
@@ -132,7 +142,9 @@ class Game:
         self.obstacles.draw(self.screen)
 
     def _reset_game(self):
-        self.player.current_health = self.settings.player_health
+        self.obstacles.empty()
+        self.player.reset()
+        self.statistics.reset()
         self.score = 0
 
     def _check_events(self):
@@ -142,6 +154,15 @@ class Game:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.isRunning = False
+                # DO TESTÓW
+                if event.key == pygame.K_KP0:  # NUM0 kys
+                    self.player.current_health = 0
+                if event.key == pygame.K_KP1:  # NUM1 ślimak
+                    self.obstacles.add(Obstacle(self, "snail"))
+                if event.key == pygame.K_KP2:  # NUM2 tornado
+                    self.obstacles.add(Obstacle(self, "storm"))
+                if event.key == pygame.K_KP3:  # NUM3 BANAN
+                    self.obstacles.add(Obstacle(self, "banana"))
 
             if self.gameRunning:
                 if event.type == self.obstacle_timer:
