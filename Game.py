@@ -25,6 +25,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.gameRunning = False
         self.start_time = 0
+        self.hs = self.statistics.hs
         self.score = 0
 
         # Resources.
@@ -46,6 +47,9 @@ class Game:
                                                self.scale_x))
 
         # Groups
+        self.banana = Obstacle(self, "banana")
+        self.bananas = pygame.sprite.GroupSingle()
+        self.bananas.add(self.banana)
         self.player = Player(self)
         self.players = pygame.sprite.GroupSingle()
         self.players.add(self.player)
@@ -81,12 +85,40 @@ class Game:
         if self.score == 0:
             self.screen.blit(self.start_msg, self.start_msg_rect)
         else:
-            score_msg = self.font.render(
-                f'Your score: {self.score}', True, self.settings.font_color)
-            score_msg_rect = score_msg.get_rect(
-                midtop=(self.screen_w / 2,
-                        self.start_img_rect.bottom + score_msg.get_rect().h))
-            self.screen.blit(score_msg, score_msg_rect)
+            self._display_start_highscore()
+            self._display_start_bananas()
+            self._display_start_distance()
+
+    def _display_start_highscore(self):
+        score_msg = self.font.render(
+            f'Highest score: {self.hs}', True, self.settings.font_color)
+        score_msg_rect = score_msg.get_rect(
+            midtop=(self.screen_w / 2,
+                    self.start_img_rect.bottom + score_msg.get_rect().h))
+        self.screen.blit(score_msg, score_msg_rect)
+
+    def _display_start_bananas(self):
+        # Banan z lewej.
+        self.banana.rect.midleft = (2 * self.banana.rect.w, self.screen_h / 2)
+        self.banana.update()
+        self.bananas.draw(self.screen)
+        # Zmiana rect banana i napisanie tekstu.
+        self.banana.rect.midleft = (3 * self.banana.rect.w, self.screen_h / 2)
+        bananas_msg = self.font.render(str(self.statistics.hb), True,
+                                       self.settings.font_color)
+        bananas_msg_rect = bananas_msg.get_rect(
+            center=(self.banana.rect.centerx, self.banana.rect.centery))
+        self.screen.blit(bananas_msg, bananas_msg_rect)
+        # Banan z prawej.
+        self.banana.rect.midleft = (4 * self.banana.rect.w, self.screen_h / 2)
+        self.bananas.draw(self.screen)
+
+    def _display_start_distance(self):
+        distance_msg = self.font.render(f"Distance: {self.statistics.hd}m",
+                                        True, self.settings.font_color)
+        distance_msg_rect = distance_msg.get_rect(
+            midright=(self.screen_w - self.banana.rect.w, self.screen_h / 2))
+        self.screen.blit(distance_msg, distance_msg_rect)
 
     def _display_time(self):
         time = pygame.time.get_ticks() // 1000
@@ -98,7 +130,7 @@ class Game:
     def _display_distance(self):
         distance = (pygame.time.get_ticks() - self.start_time)
         distance //= self.settings.distance_speed
-        distance_msg = self.font.render(f'Distance: {distance}', True,
+        distance_msg = self.font.render(f'Distance: {distance}m', True,
                                         self.settings.BLACK)
         distance_msg_rect = distance_msg.get_rect(
             midtop=(self.screen_w / 2, 0))
@@ -160,6 +192,8 @@ class Game:
                     self.obstacles.add(Obstacle(self, "storm"))
                 if event.key == pygame.K_KP3:  # NUM3 BANAN
                     self.obstacles.add(Obstacle(self, "banana"))
+                if event.key == pygame.K_KP4:  # NUM4 +POINT
+                    self.score += 1
 
             if self.gameRunning:
                 if event.type == self.obstacle_timer:
