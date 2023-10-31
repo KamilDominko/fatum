@@ -36,7 +36,8 @@ class Obstacle(pygame.sprite.Sprite):
             y_pos))
 
     def _load_imgs(self, type):
-        """Funkcja ładująca obrazy do animacji dla sprite'a."""
+        """Funkcja ładująca obrazy do animacji dla sprite'a znajdujące się w
+        bibliotece /graphics o nazwie sprite_typei, gdzie i to numer klatki."""
 
         folder_path = f"graphics/{type}"
         file_count = len(os.listdir(folder_path))
@@ -58,5 +59,5 @@ class Obstacle(pygame.sprite.Sprite):
 
     def _destroy(self):
         if self.rect.right <= 0:
-            self.game.score += self.points
+            self.game.statistics.score += self.points
             self.kill()

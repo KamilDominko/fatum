@@ -26,7 +26,6 @@ class Game:
         self.gameRunning = False
         self.start_time = 0
         self.hs = self.statistics.hs
-        self.score = 0
 
         # Resources.
         self.bg_music = pygame.mixer.Sound('audio/Hoppin.mp3')
@@ -82,7 +81,7 @@ class Game:
         self.screen.fill(self.settings.theme_color)
         self.screen.blit(self.start_img, self.start_img_rect)
         self.screen.blit(self.title_msg, self.title_msg_rect)
-        if self.score == 0:
+        if self.statistics.score == 0:
             self.screen.blit(self.start_msg, self.start_msg_rect)
         else:
             self._display_start_highscore()
@@ -91,7 +90,8 @@ class Game:
 
     def _display_start_highscore(self):
         score_msg = self.font.render(
-            f'Highest score: {self.hs}', True, self.settings.font_color)
+            f'Highest score: {self.statistics.hs}', True,
+            self.settings.font_color)
         score_msg_rect = score_msg.get_rect(
             midtop=(self.screen_w / 2,
                     self.start_img_rect.bottom + score_msg.get_rect().h))
@@ -139,7 +139,7 @@ class Game:
 
     def _display_score(self):
         # current_time = int(pygame.time.get_ticks() / 1000) - self.start_time
-        score_surf = self.font.render(f'Score: {self.score}', True,
+        score_surf = self.font.render(f'Score: {self.statistics.score}', True,
                                       self.settings.BLACK)
         score_rect = score_surf.get_rect(
             topright=(self.screen_w, 0))
@@ -153,20 +153,21 @@ class Game:
                     self.statistics.bananas += 1
                 obstacle.kill()
             if self.player.current_health <= 0:
-                self.statistics.score = self.score
+                self.statistics.compare()
+                self.statistics.load_highs()
                 self.gameRunning = False
 
     def _update_screen(self):
+        # Grafika.
         self.screen.blit(self.bg_img, (0, 0))
         self.screen.blit(self.ground_img, (0, self.ground_y))
-
+        # UI.
         self._display_score()
-        self._display_time()
         self._display_distance()
-
+        self._display_time()
+        # Sprite'y.
         self.players.update()
         self.players.draw(self.screen)
-
         self.obstacles.update()
         self.obstacles.draw(self.screen)
 
@@ -174,7 +175,6 @@ class Game:
         self.obstacles.empty()
         self.player.reset()
         self.statistics.reset()
-        self.score = 0
 
     def _check_events(self):
         for event in pygame.event.get():
@@ -193,14 +193,13 @@ class Game:
                 if event.key == pygame.K_KP3:  # NUM3 BANAN
                     self.obstacles.add(Obstacle(self, "banana"))
                 if event.key == pygame.K_KP4:  # NUM4 +POINT
-                    self.score += 1
+                    self.statistics.score += 1
 
             if self.gameRunning:
                 if event.type == self.obstacle_timer:
                     type = choice(
                         ['storm', 'snail', 'snail', 'snail', "banana"])
                     self.obstacles.add(Obstacle(self, type))
-
             else:
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                     self._reset_game()
