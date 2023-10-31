@@ -123,9 +123,6 @@ class Game:
             if self.player.current_health <= 0:
                 self.statistics.score = self.score
                 self.gameRunning = False
-                print(f"SCORE:{self.statistics.score}")
-                print(f"DISTANCE:{self.statistics.distance}")
-                print(f"BANBANAS:{self.statistics.bananas}")
 
     def _update_screen(self):
         self.screen.blit(self.bg_img, (0, 0))

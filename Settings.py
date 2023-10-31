@@ -3,8 +3,8 @@ class Settings:
 
     def __init__(self):
         self.game_title = "Runner"
-        self.screen_width = 800
-        self.screen_height = 400
+        self.screen_width = 1280
+        self.screen_height = 720
         self.fps = 60
         self.font_size = 50
 

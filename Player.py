@@ -60,12 +60,14 @@ class Player(pygame.sprite.Sprite):
     def player_input(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_SPACE] and self.rect.bottom >= self.game.ground_y:
-            self.gravity = self.jump * self.game.scale_x
+            self.gravity = self.jump
             self.jump_sound.play()
         if keys[pygame.K_d] and self.rect.right <= self.game.screen.get_width():
             self.rect.x += self.speed
         if keys[pygame.K_a] and self.rect.left >= 0:
             self.rect.x -= self.speed
+        if keys[pygame.K_s] and self.rect.left >= 0:
+            self.rect.y += self.speed
 
     def apply_gravity(self):
         self.gravity += 1
