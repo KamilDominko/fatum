@@ -2,6 +2,7 @@ import pygame
 from Settings import Settings
 from Player import Player
 from Obstacle import Obstacle
+import useful
 
 from random import choice
 
@@ -27,9 +28,18 @@ class Game:
         self.font = pygame.font.Font('font/Pixeltype.ttf', 50)
         self.bg_music = pygame.mixer.Sound('audio/Hoppin.mp3')
         self.bg_music.play(loops=-1)
-        self.sky_surface = pygame.image.load(
-            'graphics/morninghill.png').convert()
-        self.ground_surface = pygame.image.load('graphics/ground.png').convert()
+        self.bg_img = pygame.image.load('graphics/morninghill.png').convert()
+
+        self.scale_x, self.scale_y = useful.get_scale(self.screen, self.bg_img)
+
+        self.bg_img = useful.scale_image(self.bg_img, self.scale_x,
+                                         self.scale_y)
+        self.ground_img = pygame.image.load('graphics/ground.png').convert()
+        self.ground_img = useful.scale_image(self.ground_img, self.scale_x,
+                                             self.scale_y)
+
+        self.ground_y = self.screen.get_height() - self.ground_img.get_height()
+
 
         self.player = Player(self)
 
@@ -87,8 +97,10 @@ class Game:
                 self.game_active = False
 
     def _update_screen(self):
-        self.screen.blit(self.sky_surface, (0, 0))
-        self.screen.blit(self.ground_surface, (0, 300))
+        self.screen.blit(self.bg_img, (0, 0))
+        # self.screen.blit(self.ground_img, (0, 300 * self.scale_x))
+
+        self.screen.blit(self.ground_img, (0, self.ground_y))
         self.score = self.display_score()
 
         self.players.draw(self.screen)
@@ -107,7 +119,7 @@ class Game:
 
             if self.game_active:
                 if event.type == self.obstacle_timer:
-                    self.obstacle_group.add(Obstacle(
+                    self.obstacle_group.add(Obstacle(self,
                         choice(['storm', 'snail', 'snail', 'snail'])))
 
             else:
