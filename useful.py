@@ -17,10 +17,13 @@ def scale_image(image: pygame.surface.Surface, scale_x, scale_y):
     return _image
 
 
-def load_scale_image(path, img_name, scale_x, scale_y):
-    """Funkcja wczytuje z podanej ścierzki path obraz img_name i skaluje go
-    przez podane skale scale_x i scale_y."""
+def load_scale_image(path, scale_x, scale_y, convert_alpha=0):
+    """Funkcja wczytuje z podanej ścierzki path obraz i skaluje go przez
+    podane skale scale_x i scale_y."""
     path = path
-    img = pygame.image.load(f"{path}/{img_name}")
+    if not convert_alpha:
+        img = pygame.image.load(path).convert()
+    elif convert_alpha:
+        img = pygame.image.load(path).convert_alpha()
     img = scale_image(img, scale_x, scale_y)
     return img

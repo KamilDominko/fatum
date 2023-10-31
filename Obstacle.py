@@ -14,9 +14,18 @@ class Obstacle(pygame.sprite.Sprite):
 
         if type == 'storm':
             self._load_imgs(type)
+            self.damage = game.settings.enemy_damage
+            self.points = game.settings.enemy_points
             y_pos = 190
         elif type == "snail":
             self._load_imgs(type)
+            self.damage = game.settings.enemy_damage
+            self.points = game.settings.enemy_points
+            y_pos = game.ground_y
+        elif type == "banana":
+            self._load_imgs(type)
+            self.damage = game.settings.banana_heal
+            self.points = 0
             y_pos = game.ground_y
 
         self.animation_index = 0
@@ -48,5 +57,5 @@ class Obstacle(pygame.sprite.Sprite):
 
     def destroy(self):
         if self.rect.right <= 0:
-            print("ZGON")
+            self.game.score += self.points
             self.kill()
